@@ -3,8 +3,11 @@ import glob
 import csv
 import pandas as pd
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import seaborn as sns
+
 import dateutil
 import folium
 import pyproj
@@ -151,16 +154,16 @@ def make_rec_map(filtered_file, map_file):
         m.save(map_file)
 
 #This function is NESS specific for now (TODO)
-def make_fish_df(filtered_file, fish_file):
+def make_fish_dist(filtered_file):
     #first receiver id
     filtered_list = pd.read_csv(filtered_file).dropna()
     filtered_list = filtered_list.sort_values(by=['epoch']).reset_index(drop=True)
 
-    transmitters = filtered_list['transmitter'].unique()
+    tags = filtered_list['tags'].unique()
     print('Printing graphs...')
 
-    for tx in transmitters:
-        ff = filtered_list[filtered_list['transmitter']==tx].reset_index(drop=True)
+    for tx in tags:
+        ff = filtered_list[filtered_list['tags']==tx].reset_index(drop=True)
         if(len(ff)<10):
             continue
         ax = sns.countplot(x="dist_first", data=ff)
@@ -175,8 +178,70 @@ def make_fish_df(filtered_file, fish_file):
         plt.savefig('data/output/timedist'+str(tx)+'png')
         plt.clf()
 
+    print('done')
+
+def make_fish_corr(filtered_file):
+    #first receiver id
+    filtered_list = pd.read_csv(filtered_file).dropna()
+    filtered_list = filtered_list.sort_values(by=['epoch']).reset_index(drop=True)
+
+    tags = filtered_list['tags'].unique()
+    #calculate correlation between different fish
+    #order fish by 'distance traveled'
+    #order fish by ho fast to last rec
+    correg=np.zeros((len(tags),len(tags)))
+    for idx, tx in enumerate(tags):
+        fx = filtered_list[filtered_list['tags']==tx].set_index('epoch')
+        for idy, ty in enumerate(tags):
+            fy = filtered_list[filtered_list['tags']==ty].set_index('epoch')
+            correg[idx,idy] =  fx['dist_first'].corr(fy['dist_first'])
+
+
+    ###############PRINT MAIN MAP
+    colormap = cm.get_cmap('inferno')
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.imshow(correg,vmin=-1, vmax=1, cmap=colormap)
+    ax.set_axis_off()
+    fig.tight_layout()
+
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+    cbar = mpl.colorbar.ColorbarBase(cbar_ax, cmap=colormap,norm=mpl.colors.Normalize(vmin=-1, vmax=1))
+
+    fig.suptitle("correlation)",fontsize=14)
+    fig.savefig('data/output/' + 'correlation.png')
+    #plt.show()
+
+
     print("done!")
 
+def make_fish_speed(filtered_file, fish_file):
+    dfish = pd.read_csv(filtered_file).dropna()
+    dfish = dfish.sort_values(by=['epoch']).reset_index(drop=True)
+    tags = dfish['tags'].unique()
+
+    allfish = list()
+
+    for tx in tags:
+        ff = dfish[dfish['tags']==tx].reset_index(drop=True)
+        ff['t_diff']=ff['epoch'] - ff['epoch'].shift(1)
+        ff['t_dist']=ff['dist_first'] - ff['dist_first'].shift(1)
+        ff['speed']=ff.apply(lambda row: row['t_dist']/(360*row['t_diff']), axis=1)
+        ff=ff[ff['speed']!=0] #remove uninteresing stuff
+        if len(ff) == 0:
+            continue
+        ay = sns.scatterplot(x="datetime", y='speed', data=ff)
+        ay.set_title(str(tx))
+        ay.set_xticklabels(ay.get_xticklabels(),rotation=45)
+        plt.savefig('data/output/speed'+str(tx)+'png')
+        plt.clf()
+        allfish.append(ff)
+
+    fishmove = pd.concat(allfish)
+    fishmove.to_csv(fish_file)
+
+
+#USE THIS TO CALCULATE SPEED
 #import dateutil
 #timethreshold = 30 #how many seconds max difference between pings from a fish
 #dffilts = dict()
