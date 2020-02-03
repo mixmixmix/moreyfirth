@@ -173,6 +173,7 @@ def make_fish_dist(filtered_file):
         plt.clf()
         #ay = sns.distplot(ff['epoch'].values)
         ay = sns.scatterplot(x="epoch", y='dist_first', data=ff)
+        ay.set_ylim(-1,4)
         #ay.set_xticklabels(ay.get_xticklabels(),rotation=90)
         ay.set_title(str(tx))
         plt.savefig('data/output/timedist'+str(tx)+'png')
@@ -221,45 +222,71 @@ def make_fish_speed(filtered_file, fish_file):
     tags = dfish['tags'].unique()
 
     allfish = list()
-
+    print('Analysing ' + str(len(tags)) + ' fish.')
     for tx in tags:
+        print('Fish .. ' + str(tx))
         ff = dfish[dfish['tags']==tx].reset_index(drop=True)
         ff['t_diff']=ff['epoch'] - ff['epoch'].shift(1)
         ff['t_dist']=ff['dist_first'] - ff['dist_first'].shift(1)
         ff['speed']=ff.apply(lambda row: row['t_dist']/(360*row['t_diff']), axis=1)
-        ff=ff[ff['speed']!=0] #remove uninteresing stuff
-        if len(ff) == 0:
+        onlyff=ff[ff['speed']!=0] #remove uninteresing stuff
+        #removing only fish which never move
+        #But is it really that uninteresting?
+        if len(onlyff) == 0:
             continue
         ay = sns.scatterplot(x="datetime", y='speed', data=ff)
         ay.set_title(str(tx))
         ay.set_xticklabels(ay.get_xticklabels(),rotation=45)
         plt.savefig('data/output/speed'+str(tx)+'png')
-        plt.clf()
+        #plt.clf()
         allfish.append(ff)
 
     fishmove = pd.concat(allfish)
     fishmove.to_csv(fish_file)
+    print('Moved fish')
+
+def check_fish_coocurrence(fish_file, rec_groups_dir):
+    ff = pd.read_csv(fish_file)
+
+#for each receiver
+    timethreshold = 2 #how many epochs (epoch is 0/1 of an hour)
+    dfss=dict()
+    for d in ff['dist_first'].unique():
+        df = ff[ff['dist_first']==d][['datetime','epoch','dist_first','tags']]
+        df = df.sort_values(by=['epoch']).reset_index(drop=True)
+        df['fishdiff']= ~(df['tags'] == df['tags'].shift())
+        df['mfishdiff']= ~(df['tags'].shift(-1) == df['tags'])
+        df['tdiff']=df['epoch'] - df['epoch'].shift(1, fill_value=0)
+        df['mtdiff']=df['epoch'].shift(-1, fill_value=0) - df['epoch']
+        dffilt = df[((df['tdiff']<timethreshold) & (df['fishdiff'])) | ((df['mtdiff']<timethreshold)  & (df['mfishdiff']))]
+        #plt.plot(dffilt['epoch'],dffilt['tags'],'o')
+        #plt.show()
+        dfss[d]=dffilt
+
+    #give clusters a name
+    for dffilt in dfss.values():
+        groupid = 0
+        shoals = []
+        for ix, valx in dffilt.iterrows():
+            if valx['tdiff']>=timethreshold:
+                groupid=groupid+1
+            shoals.append(groupid)
+
+        dffilt['shoals']=shoals
+        #plt.plot(dffilt['epoch'],dffilt['shoals'],'o')
+        #plt.show()
+
+    for key, dfs in dfss.items():
+        print(key)
+        dfs.to_csv(rec_groups_dir + str(key) + '.csv')
+        #plt.plot(dfs.groupby('shoals').size())
+        #plt.show()
+
 
 
 #USE THIS TO CALCULATE SPEED
 #import dateutil
-#timethreshold = 30 #how many seconds max difference between pings from a fish
-#dffilts = dict()
-#for key, df in dfs.items():
-#    df['tesc'] = df.apply (lambda row: dateutil.parser.isoparse(row['Date and Time (UTC)']).timestamp(), axis=1)
-#    df['datetime'] = df.apply (lambda row: dateutil.parser.isoparse(row['Date and Time (UTC)']), axis=1)
-#    df = df [['tesc','datetime','Transmitter']]
-#    #df.set_index('tesc')
-#    df['fishdiff']= ~(df['Transmitter'] == df['Transmitter'].shift())
-#    df['mfishdiff']= ~(df['Transmitter'].shift(-1) == df['Transmitter'])
-#    df['tdiff']=df['tesc'] - df['tesc'].shift(1, fill_value=1554901439)
-#    df['mtdiff']=df['tesc'].shift(-1, fill_value=1554901439) - df['tesc']
-#    dffilt = df[((df['tdiff']<timethreshold) & (df['fishdiff'])) | ((df['mtdiff']<timethreshold)  & (df['mfishdiff']))]
-#    plt.plot(dffilt['datetime'],dffilt['tdiff'],'o')
-#    plt.show()
-#    display(dffilt.head(10))
-#    dffilts[key]=dffilt
-#
+
 #In [ ]:
 ##give clusters a name
 #for dffilt in dffilts.values():
