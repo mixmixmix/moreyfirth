@@ -355,7 +355,7 @@ def check_fish_pairs(fish_file, rec_better_file, pairs_map_file):
 
     m = folium.Map(location=[57.0890, -4.7483], zoom_start=15)
 
-    cycol = cycle(['blue','red','green','yellow','black'])
+    cycol = cycle(['orange','blue','red','green','brown','yellow','pink','black'])
     for index, rec in rec_list.iterrows():
         fishes_pairs = len(pairs[abs(index)]) #HACK TODO TMP becasue I use data crunched before
         colour = next(cycol)
