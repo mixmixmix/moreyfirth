@@ -338,8 +338,9 @@ def check_fish_pairs(fish_file, rec_better_file, pairs_map_file):
     print("comparison")
     bygone_keys = []
     pairs = dict()
+    for key, val in unique_fishpairs.items():
+        pairs[key]=[]
     for key1, val1 in unique_fishpairs.items():
-        pairs[key1]=[]
         for key2, val2 in unique_fishpairs.items():
             if key1 == key2 or key2 in bygone_keys:
                 continue
@@ -347,20 +348,22 @@ def check_fish_pairs(fish_file, rec_better_file, pairs_map_file):
                 print('Found it, yes!!!! There the same lovely couple of salmon at the receiver ' + str(key1) + ' and ' + str(key2) + ' :D ')
                 print(val1.intersection(val2))
                 pairs[key1].append(val1.intersection(val2))
+                pairs[key2].append(val1.intersection(val2))
         bygone_keys.append(key1)
 
     rec_list = pd.read_csv(rec_better_file).set_index('dist_first')
 
     m = folium.Map(location=[57.0890, -4.7483], zoom_start=15)
 
-    cycol = cycle('bgrcmk')
+    cycol = cycle(['blue','red','green','yellow','black'])
     for index, rec in rec_list.iterrows():
         fishes_pairs = len(pairs[abs(index)]) #HACK TODO TMP becasue I use data crunched before
         colour = next(cycol)
+        print(colour)
         folium.CircleMarker(location = [rec['lat'], rec['lon']]
                             , popup=str(index) + ' at distance ' + str(rec['rec_id'])
                             , color = colour
-                            , radius= 1 + np.sqrt(fishes_pairs)
+                            , radius= 5 + 10*fishes_pairs
                             , fill=True
                             , fill_color=colour
                             , stroke = True
