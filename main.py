@@ -10,12 +10,12 @@ rec_groups_dir = 'data/rec_groups/'
 main_map_file ='data/recmap.html'
 pairs_map_file ='data/pairs_recmap.html'
 
-#salmomiks.load_data('data/recievers.csv'
-#                    , tag_file
-#                    , glob.glob('data/observations/*csv')
-#                    , filtered_file
-#                    , rec_file_better
-#)
+salmomiks.load_data('data/recievers.csv'
+                    , tag_file
+                    , glob.glob('data/observations/*csv')
+                    , filtered_file
+                    , rec_file_better
+)
 
 #salmomiks.make_rec_map(filtered_file, main_map_file)
 #
@@ -29,5 +29,5 @@ pairs_map_file ='data/pairs_recmap.html'
 #10 min is 0.2 epoch ?
 #salmomiks.check_fish_pairs(fish_file)
 
-fish_file = 'data_badger_thresh2epoch/data_thresh2epoch/fish_moove.csv'
-salmomiks.check_fish_pairs(fish_file, rec_file_better, pairs_map_file)
+#fish_file = 'data_badger_thresh2epoch/data_thresh2epoch/fish_moove.csv'
+#salmomiks.check_fish_pairs(fish_file, rec_file_better, pairs_map_file)

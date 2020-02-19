@@ -92,7 +92,8 @@ def load_data(recievers_list_file
 
     tags_in_system = tag_list.values
     transmitters_in_system = df_observations['tags'].unique()
-    #print(tags_in_system)
+    print("len(tags_in_system)")
+    print(len(tags_in_system))
     #print(transmitters_in_system)
     print('Removing {} alien signals'.format(len(list(set(transmitters_in_system)-set(tags_in_system)))))
     df_observations = df_observations[df_observations['tags'].isin(tag_list.values)]

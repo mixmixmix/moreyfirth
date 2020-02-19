@@ -1,0 +1,37 @@
+** Middle and end of the lake
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 0 and 2270 :D 
+{frozenset({12745, 12751}), frozenset({13313, 13014}), frozenset({12776, 12886}), frozenset({12881, 12878}), frozenset({12888, 13015}), frozenset({13314, 5340}), frozenset({13035, 12853}), frozenset({12888, 5330}), frozenset({12888, 12747}), frozenset({12749, 12750}), frozenset({13321, 13015}), frozenset({5339, 5340}), frozenset({12888, 12872}), frozenset({13024, 12745}), frozenset({13301, 13303}), frozenset({5336, 5327}), frozenset({13016, 13014}), frozenset({5337, 12862}), frozenset({12854, 12855}), frozenset({13322, 13309}), frozenset({12750, 12751}), frozenset({12745, 12747}), frozenset({13017, 13322}), frozenset({12746, 12750}), frozenset({12888, 12749}), frozenset({12888, 12750}), frozenset({12888, 12751}), frozenset({13321, 13023}), frozenset({13017, 13014}), frozenset({13024, 5345}), frozenset({12888, 13024}), frozenset({13313, 12852}), frozenset({13297, 13306}), frozenset({12875, 12876}), frozenset({5330, 13015}), frozenset({13017, 5343}), frozenset({13322, 5343}), frozenset({5337, 5345}), frozenset({13312, 13303}), frozenset({12854, 12870}), frozenset({12872, 12745}), frozenset({5337, 5325}), frozenset({5323, 13023}), frozenset({12872, 5330}), frozenset({5345, 5332}), frozenset({5336, 12886}), frozenset({13321, 13014})}
+** Begining and end of Oykl, For William
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 0 and 9862 :D 
+{frozenset({5326, 12751}), frozenset({12872, 5330}), frozenset({12890, 5326}), frozenset({5326, 12878})}
+** Lake
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 0 and 2813 :D 
+{frozenset({13025, 5337}), frozenset({13035, 12862}), frozenset({12745, 5325}), frozenset({13321, 13014})}
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 0 and 3849 :D 
+{frozenset({13016, 13017}), frozenset({5341, 13023}), frozenset({13322, 12885}), frozenset({13314, 12885}), frozenset({5340, 13023}), frozenset({13314, 5340}), frozenset({13314, 12877})}
+** end lake to end Oykl, fort william
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 2270 and 9862 :D 
+{frozenset({12864, 12750}), frozenset({12872, 5330}), frozenset({13307, 13299}), frozenset({12776, 12890})}
+** lake:
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 2270 and 2813 :D 
+{frozenset({12875, 12886}), frozenset({12875, 13014}), frozenset({12745, 12854}), frozenset({5330, 12854}), frozenset({13025, 12875}), frozenset({13321, 13014})}
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 2270 and 3849 :D 
+{frozenset({13017, 13314}), frozenset({13017, 12877}), frozenset({13314, 5340})}
+                                                                                                
+
+** Results: (within 12 min max), 2 epoch
+
+*** end lake - end oykl
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 2270 and 9862 :D 
+**** {frozenset({12864, 12750}), 30th 1am-5am, the same, 29th 1-3am, 1 am 27th to 2am 29th
+frozenset({12872, 5330}), long time on lake both, end oykl as in the next set
+**** frozenset({13307, 13299}), 1-6 22 Apr, 1-6 22 Apr, arrive and dept almost the same minute. On the 2270, 3days/5days. 
+frozenset({12776, 12890})}, 29th Apr 00-18, 29th 01:30 - 0600
+
+*** mid lake - end oykl
+
+Found it, yes!!!! There the same lovely couple of salmon at the receiver 0 and 9862 :D 
+{frozenset({5326, 12751}), 12751 just a few hours longer on 0, one full day on oykl
+frozenset({12872, 5330}), 12872 all day on 3rd Mar on oykl, 5330 on day longer
+frozenset({12890, 5326}), on 0, close coocurence, on oykl, one spent 3 days there, another one day during that period.
+frozenset({5326, 12878})}, on 0, close cooucrences, on oykl, 5326 spent 3 days and 12878 swam in 2 pings.
