@@ -58,6 +58,17 @@ plt.show()
 rid = 483488
 ness['datetime']=pd.to_datetime(ness['datetime'])
 restab = dict()
+#read from files
+for rid in recids:
+    try:
+        cdict = load_obj(f'restab{rid}.obj')
+        for key, value in cdict.items():
+            restab[key]=value
+    except:
+        print(f'Skipping {rid}')
+
+
+
 for rid in recids:
     print(f'Rec {rid}')
     if rid == 480432:
@@ -95,9 +106,11 @@ def load_obj(name ):
 
 
 
-
+#survival rate, speed in different environments, detection probability
+#co-occurence
 
 a = restab[480432]
+a = restab[483458]
 sns.heatmap(a, vmin = 0, vmax=600); plt.show()
 
 # close file
