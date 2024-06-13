@@ -1,0 +1,10 @@
+Receiver,Beat/Location,Distance (km),Distance diff. (km),Receiver efficiency (%),Confirmed survival (%),% losses per km,Median residences (mins),Median ROM (m/s),Median travel duration (days)
+Release Site,NA,0,0,NA,100,NA,NA,NA,NA
+126853,Huntly,20.54,20.54,100,76,1.2,1.72,0.06,3.88
+126855,Avochie,35.86,15.32,98.4,63,0.8,7.11,0.09,2.08
+126851,Bridge of Marnoch,47.63,11.77,98.2,57,0.5,5.15,0.12,1.10
+126852,Lower Netherdale,55.78,8.15,100,56,0.1,4.28,0.10,0.93
+480423,Muiresk,62.40,6.62,100,52,0.6,4.29,0.04,1.87
+480428,Banff Upper,82.41,20.01,100,38,0.7,27.03,0.08,2.94
+Banff Bay,Banff Lower,83.88,1.47,NA,34,2.7,19.18,0.39,0.04
+Fraserburgh,Banff Lower,118.15,34.26,NA,11,0.7,6.20,0.28,1.79

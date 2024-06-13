@@ -1,0 +1,13 @@
+Receiver,Beat/Location,Distance (km),Distance Diff. (km),Efficiency (%),Confirmed Survival (%),% losses per km,Median residences (mins),Median ROM (m/s),Median travel duration (secs)
+Release Site,NA,0,0,NA,100,NA,NA,NA,NA
+481450,Ladies Pool,0.74,0.74,97.94,97,4.03,6.79,0.01,1.38
+480409,Long Pool,4.62,3.88,36.96,92,1.29,0.90,0.08,0.83
+480417,Fir Dam,6.79,2.17,100,92,0,5.22,0.04,0.68
+481426,Home Pool,8.81,2.02,98.88,89,1.49,2.03,0.24,0.10
+480408,Invershin Bridge,11.53,2.72,100,89,0,73.78,0.03,1.00
+481435,Creich,21.07,9.54,93.02,86,0.31,238.40,0.07,1.64
+481444,Whiteface,27.55,6.48,96.43,84,0.31,14.11,0.51,0.15
+483468,Dornoch,40.45,12.89,78.48,79,0.39,10.63,0.28,0.54
+Dornoch Array,NA,49.50,9.05,92.11,76,0.33,11.76,0.37,0.29
+Spey Bay,NA,78.34,28.84,NA,58,0.62,5.99,0.32,1.06
+Fraserburgh,NA,148.01,69.67,NA,12,0.17,8.45,0.31,2.64

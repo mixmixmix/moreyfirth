@@ -1,0 +1,10 @@
+Receiver,Beat/Location,Distance (km),Distance diff. (km),Receiver efficiency (%),Confirmed Survival (%),% losses per km,Median residences (mins),Median ROM (m/s),Median travel duration (days)
+Release Site,NA,0,0,NA,100,NA,NA,NA,NA
+131691,Broom of Moy,1.38,1.38,NA,80,14.49,5.63,TBC,TBC
+480427,Antons Pool,2.9,1.52,100,70,6.58,0.97,TBC,TBC
+483276,Sea Pool,6.05,3.15,78.57,64,1.90,10.18,TBC,TBC
+126850,Binsness,8.05,2.00,100,59,2.50,5.18,0.25,0.22
+480411,Findhorn Bay Mouth,10.57,2.52,72.88,53,2.38,20.48,0.27,0.30
+Inner MF,NA,19.2,8.63,60.38,48,0.58,11.40,0.26,0.47
+Spey Bay,NA,39.95,20.75,NA,40,0.39,6.03,0.27,1.62
+Fraserburgh,NA,115.43,75.49,NA,11,0.38,9.05,0.28,3.02

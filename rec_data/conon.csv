@@ -1,0 +1,8 @@
+Receiver,Beat/Location,Distance (km),Distance Diff. (km),Efficiency (%),Confirmed Survival (%),% losses per km,Median residences (mins),Median ROM (m/s),Median travel duration (days)
+Release Site,NA,0,0,NA,100,NA,NA,NA,NA
+481433,Kettle Pool,6.23,6.23,100,51.52,7.78,13.67,0.02,3.6
+480419,Morrison Pool,12.05,5.81,100,46.46,0.87,15.89,TBC,TBC
+Cromarty,NA,43.19,31.14,100,33.33,0.42,10.88,0.15,2.43
+Inner MF,NA,68.97,25.78,92,25.25,0.31,8.53,0.32,0.94
+Spey Bay,NA,91.43,22.46,NA,19.19,0.27,4.03,0.37,0.64
+Fraserburgh,NA,152.93,61.50,NA,4.04,0.24,2.43,0.41,1.84
