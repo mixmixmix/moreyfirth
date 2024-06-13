@@ -13,6 +13,7 @@ import pyproj
 import seaborn as sns
 from matplotlib import cm
 import warnings
+import yaml
 
 # Suppress deprecation warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -60,6 +61,9 @@ for array in newf["array"].unique():
     rec_table = rec_table[rec_table["receiver"].str.isnumeric()]
     # convert 'receiver' to integer
     rec_table["receiver"] = rec_table["receiver"].astype(int)
+    # distance in meters:
+    rec_table["distance"] = rec_table["distance"] * 1000
+    rec_table["distance_diff"] = rec_table["distance_diff"] * 1000
     pings_data0 = newf[newf["array"] == array]
     # merge on receiver
     pings_data = pd.merge(pings_data0, rec_table, on="receiver")
@@ -87,6 +91,17 @@ for array in rivsys:
     the_array["receiver"] = pd.Categorical(
         the_array["receiver"], categories=unique_receivers, ordered=True
     )
+    # get receiver 'distance' and 'efficency'
+    rec_info = (
+        the_array.groupby(["receiver"])
+        .first()
+        .reset_index()[["receiver", "distance", "efficiency"]]
+    )
+    # TODO/HACK Assuming we won't know the data at the start
+    detectors_dists = [
+        int(z - rec_info.iloc[0]["distance"]) for z in rec_info["distance"].values
+    ]
+    detectors_probs = [float(z) for z in rec_info["efficiency"].values]
 
     the_array["minutes_of_journey"] = the_array.groupby("tagid")["datetime"].transform(
         lambda x: (x - x.min()).dt.total_seconds() / 60
@@ -184,3 +199,19 @@ for array in rivsys:
     )
     # save sumstat to csv in out folder
     np.savetxt(f"out/sumstat_{array.lower()}.csv", sumstat, delimiter=",")
+    # save details about this river system for simulations
+    # keep dtypes simple
+    river_data = {
+        "name": str(array.lower()),
+        "no_smolts": int(no_smolts),
+        "NO_RECEIVERS": int(NO_RECEIVERS),
+        "simtime_max": int(the_array["minutes_of_journey"].max()),
+        "smolt_starts": np.repeat(
+            0, no_smolts
+        ).tolist(),  # HACK we don't have release times yet?
+        "detectors_dists": detectors_dists,
+        "detectors_probs": detectors_probs,
+        "DET_GROUPS": DET_GROUPS.tolist(),
+    }
+    with open(f"out/river_data_{array.lower()}.yaml", "w") as file:
+        yaml.dump(river_data, file)
