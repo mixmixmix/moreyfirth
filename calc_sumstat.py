@@ -101,7 +101,7 @@ for array in rivsys:
     detectors_dists = [
         int(z - rec_info.iloc[0]["distance"]) for z in rec_info["distance"].values
     ]
-    detectors_probs = [float(z) for z in rec_info["efficiency"].values]
+    detectors_probs = [float(z / 100) for z in rec_info["efficiency"].values]
 
     the_array["minutes_of_journey"] = the_array.groupby("tagid")["datetime"].transform(
         lambda x: (x - x.min()).dt.total_seconds() / 60
@@ -125,93 +125,93 @@ for array in rivsys:
     NO_RECEIVERS = the_array["receiver"].nunique()
     if NO_RECEIVERS < 3:
         print(f"Skipping array {array} as it has less than 3 receivers")
-        continue
-    no_smolts = the_array["tagid"].nunique()
+    else:
+        no_smolts = the_array["tagid"].nunique()
 
-    # divide receivers into three groups, writing the group number into the array
-    DET_GROUPS = np.concatenate(
-        [
-            np.repeat(0, NO_RECEIVERS // 3),
-            np.repeat(1, NO_RECEIVERS // 3 + NO_RECEIVERS % 3),
-            np.repeat(2, NO_RECEIVERS // 3),
-        ]
-    )
+        # divide receivers into three groups, writing the group number into the array
+        DET_GROUPS = np.concatenate(
+            [
+                np.repeat(0, NO_RECEIVERS // 3),
+                np.repeat(1, NO_RECEIVERS // 3 + NO_RECEIVERS % 3),
+                np.repeat(2, NO_RECEIVERS // 3),
+            ]
+        )
 
-    # Assuming first_det and last_det are now 2D: [no_smolts, NO_RECEIVERS]
-    first_det_expanded = first_det[
-        :, np.newaxis, :
-    ]  # Shape: [no_smolts, 1, NO_RECEIVERS]
-    last_det_expanded = last_det[
-        :, np.newaxis, :
-    ]  # Shape: [no_smolts, 1, NO_RECEIVERS]
+        # Assuming first_det and last_det are now 2D: [no_smolts, NO_RECEIVERS]
+        first_det_expanded = first_det[
+            :, np.newaxis, :
+        ]  # Shape: [no_smolts, 1, NO_RECEIVERS]
+        last_det_expanded = last_det[
+            :, np.newaxis, :
+        ]  # Shape: [no_smolts, 1, NO_RECEIVERS]
 
-    # Broadcasting to compare all pairs
-    overlaps = np.logical_and(
-        first_det_expanded
-        <= last_det[np.newaxis, :, :],  # First of one before last of other
-        last_det_expanded
-        >= first_det[np.newaxis, :, :],  # Last of one after first of other
-    )
+        # Broadcasting to compare all pairs
+        overlaps = np.logical_and(
+            first_det_expanded
+            <= last_det[np.newaxis, :, :],  # First of one before last of other
+            last_det_expanded
+            >= first_det[np.newaxis, :, :],  # Last of one after first of other
+        )
 
-    for receiver_index in range(NO_RECEIVERS):
-        np.fill_diagonal(overlaps[:, :, receiver_index], False)
+        for receiver_index in range(NO_RECEIVERS):
+            np.fill_diagonal(overlaps[:, :, receiver_index], False)
 
-    # Summing the boolean overlaps will give us the count of co-occurrences for each pair
-    co_occurrences = np.sum(overlaps)  # Sum over smolts and receivers
+        # Summing the boolean overlaps will give us the count of co-occurrences for each pair
+        co_occurrences = np.sum(overlaps)  # Sum over smolts and receivers
 
-    # We only want to count each pair once, so we subtract the count of smolts themselves and divide by 2
-    co_occurrences_corrected = co_occurrences / (2 * no_smolts * NO_RECEIVERS)
+        # We only want to count each pair once, so we subtract the count of smolts themselves and divide by 2
+        co_occurrences_corrected = co_occurrences / (2 * no_smolts * NO_RECEIVERS)
 
-    # Additional calculations are modified to remove batch processing
-    npin = np.ma.masked_equal(cumu_det, 0).mean(axis=0).data
-    mid_time = ((last_det - first_det) / 2) + first_det
+        # Additional calculations are modified to remove batch processing
+        npin = np.ma.masked_equal(cumu_det, 0).mean(axis=0).data
+        mid_time = ((last_det - first_det) / 2) + first_det
 
-    nufi = np.count_nonzero(cumu_det, axis=0) / no_smolts
-    arrtimestd = np.nanstd(mid_time, axis=0) / detlocs
-    arrtimemean = np.nanmean(mid_time, axis=0)
+        nufi = np.count_nonzero(cumu_det, axis=0) / no_smolts
+        arrtimestd = np.nanstd(mid_time, axis=0) / detlocs
+        arrtimemean = np.nanmean(mid_time, axis=0)
 
-    meanspeed = 1 / (30 * np.nanmean(arrtimemean[1:] * (1 / np.array(detlocs[1:]))))
+        meanspeed = 1 / (30 * np.nanmean(arrtimemean[1:] * (1 / np.array(detlocs[1:]))))
 
-    group_npin = np.zeros(3)
-    group_nufi = np.zeros(3)
-    group_arrtimestd = np.zeros(3)
+        group_npin = np.zeros(3)
+        group_nufi = np.zeros(3)
+        group_arrtimestd = np.zeros(3)
 
-    for zzz in range(3):
-        indices = np.where(np.array(DET_GROUPS) == zzz)
-        group_start = indices[0][0]
-        group_end = indices[0][-1]
-        this_group_npin = npin[group_start : group_end + 1]
-        this_group_nufi = nufi[group_start : group_end + 1]
-        this_group_arrtimestd = arrtimestd[group_start : group_end + 1]
-        group_npin[zzz] = np.mean(this_group_npin)
-        group_nufi[zzz] = np.mean(this_group_nufi)
-        group_arrtimestd[zzz] = np.mean(this_group_arrtimestd)
+        for zzz in range(3):
+            indices = np.where(np.array(DET_GROUPS) == zzz)
+            group_start = indices[0][0]
+            group_end = indices[0][-1]
+            this_group_npin = npin[group_start : group_end + 1]
+            this_group_nufi = nufi[group_start : group_end + 1]
+            this_group_arrtimestd = arrtimestd[group_start : group_end + 1]
+            group_npin[zzz] = np.mean(this_group_npin)
+            group_nufi[zzz] = np.mean(this_group_nufi)
+            group_arrtimestd[zzz] = np.mean(this_group_arrtimestd)
 
-    # Prepare the summary statistics
-    sumstat = np.concatenate(
-        [
-            group_npin,
-            group_nufi,
-            group_arrtimestd,
-            np.array([meanspeed]),
-            np.array([co_occurrences_corrected]),
-        ]
-    )
-    # save sumstat to csv in out folder
-    np.savetxt(f"out/sumstat_{array.lower()}.csv", sumstat, delimiter=",")
-    # save details about this river system for simulations
-    # keep dtypes simple
-    river_data = {
-        "name": str(array.lower()),
-        "no_smolts": int(no_smolts),
-        "NO_RECEIVERS": int(NO_RECEIVERS),
-        "simtime_max": int(the_array["minutes_of_journey"].max()),
-        "smolt_starts": np.repeat(
-            0, no_smolts
-        ).tolist(),  # HACK we don't have release times yet?
-        "detectors_dists": detectors_dists,
-        "detectors_probs": detectors_probs,
-        "DET_GROUPS": DET_GROUPS.tolist(),
-    }
-    with open(f"out/river_data_{array.lower()}.yaml", "w") as file:
-        yaml.dump(river_data, file)
+        # Prepare the summary statistics
+        sumstat = np.concatenate(
+            [
+                group_npin,
+                group_nufi,
+                group_arrtimestd,
+                np.array([meanspeed]),
+                np.array([co_occurrences_corrected]),
+            ]
+        )
+        # save sumstat to csv in out folder
+        np.savetxt(f"out/sumstat_{array.lower()}.csv", sumstat, delimiter=",")
+        # save details about this river system for simulations
+        # keep dtypes simple
+        river_data = {
+            "name": str(array.lower()),
+            "no_smolts": int(no_smolts),
+            "NO_RECEIVERS": int(NO_RECEIVERS),
+            "simtime_max": int(the_array["minutes_of_journey"].max()),
+            "smolt_starts": np.repeat(
+                0, no_smolts
+            ).tolist(),  # HACK we don't have release times yet?
+            "detectors_dists": detectors_dists,
+            "detectors_probs": detectors_probs,
+            "DET_GROUPS": DET_GROUPS.tolist(),
+        }
+        with open(f"out/river_data_{array.lower()}.yaml", "w") as file:
+            yaml.dump(river_data, file)
