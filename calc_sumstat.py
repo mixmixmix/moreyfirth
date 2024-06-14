@@ -188,11 +188,11 @@ for array in rivsys:
             group_arrtimestd[zzz] = np.mean(this_group_arrtimestd)
 
         # Prepare the summary statistics
+        # NOTE WITHOUT std deviation of arrival time!!!!
         sumstat = np.concatenate(
             [
                 group_npin,
                 group_nufi,
-                group_arrtimestd,
                 np.array([meanspeed]),
                 np.array([co_occurrences_corrected]),
             ]
