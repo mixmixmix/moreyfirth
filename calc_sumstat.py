@@ -169,8 +169,10 @@ for array in rivsys:
         nufi = np.count_nonzero(cumu_det, axis=0) / no_smolts
         arrtimestd = np.nanstd(mid_time, axis=0) / detlocs
         arrtimemean = np.nanmean(mid_time, axis=0)
+        arrtimedian = np.nanmedian(mid_time, axis=0)
 
-        meanspeed = 1 / (30 * np.nanmean(arrtimemean[1:] * (1 / np.array(detlocs[1:]))))
+        meanspeed = np.nanmean(np.array(detlocs[1:]) / arrtimemean[1:])
+        medianspeed = np.nanmean(np.array(detlocs[1:]) / arrtimedian[1:])
 
         group_npin = np.zeros(3)
         group_nufi = np.zeros(3)
@@ -194,6 +196,7 @@ for array in rivsys:
                 group_npin,
                 group_nufi,
                 np.array([meanspeed]),
+                np.array([medianspeed]),
                 np.array([co_occurrences_corrected]),
             ]
         )
