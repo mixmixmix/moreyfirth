@@ -21,11 +21,11 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 newf = pd.read_csv("indata/mf/Salmon.csv")
 
-# Adjustements for river Ness, merging of receivers at the same location and one receiver West-bound
-# replace receiver 483495 and 483466 with 483488
+# Adjustements for river Ness, merging of receivers at the same location and one receiver West-bound (483479)
 newf["receiver"] = newf["receiver"].replace([483495, 483466], 483488)
 newf["receiver"] = newf["receiver"].replace([483463], 483460)
 newf["receiver"] = newf["receiver"].replace([483457], 483492)
+newf = newf[newf["receiver"] != 483479]
 
 
 first_ping = newf.drop_duplicates(subset="tagid")
