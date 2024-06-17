@@ -83,10 +83,32 @@ for array in newf["array"].unique():
     pings_data0 = newf[newf["array"] == array]
     # merge on receiver
     pings_data = pd.merge(pings_data0, rec_table, on="receiver")
+
+    for rec in pings_data["receiver"].unique():
+        # get number of unique smolts detected by this receiver
+        tr_smolts = set(pings_data[pings_data["receiver"] == rec]["tagid"].unique())
+        tr_dist = pings_data[pings_data["receiver"] == rec]["distance"].values[0]
+        # get number of unique detections at receivers with distance greater than this receiver
+        further_smolts = set(
+            pings_data[pings_data["distance"] > tr_dist]["tagid"].unique()
+        )
+        tr_missed = further_smolts - tr_smolts
+        if len(further_smolts) > 0:
+            tr_efficency = 1 - (len(tr_missed) / len(further_smolts))
+        else:  # IF unknown from our computations use the receiver efficiency
+            tr_efficency = pings_data[pings_data["receiver"] == rec][
+                "efficiency"
+            ].values[0]
+        pings_data.loc[pings_data["receiver"] == rec, "mk_efficiency"] = (
+            100 * tr_efficency
+        )
+
     # How many NaNs we have in distance records as a percentage of all?
     print(
         f'Array {array} has {pings_data["distance_diff"].isna().sum()/len(pings_data)*100:.2f}% of distance records missing'
     )
+    # print pings_data efficency and mk_efficiency for all unique receivers
+    print(pings_data.groupby("receiver")[["efficiency", "mk_efficiency"]].first())
     arrays[array] = pings_data
     rivsys.append(array)
 
