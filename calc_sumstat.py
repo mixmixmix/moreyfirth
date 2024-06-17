@@ -298,9 +298,6 @@ for array in rivsys:
             "no_smolts": int(no_smolts),
             "NO_RECEIVERS": int(NO_RECEIVERS),
             "simtime_max": int(the_array["minutes_of_journey"].max()),
-            "smolt_starts": np.repeat(
-                0, no_smolts
-            ).tolist(),  # HACK we don't have release times yet?
             "detectors_dists": detectors_dists,
             "detectors_probs": detectors_probs,
             "DET_GROUPS": DET_GROUPS.tolist(),
