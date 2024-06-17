@@ -40,18 +40,8 @@ tag_info_full = pd.merge(
 tag_info_full = tag_info_full[tag_info_full["Spp"] == "Salmon"]
 ###########################
 # get release datetime
-# Get rid of one idiotic format of date
-tag_info_full["Date"] = tag_info_full["Date"].apply(
-    lambda x: (
-        x if x[-4:] == "2019" else x.split("/")[1] + "/" + x.split("/")[0] + "/2019"
-    )
-)
 # Fix data where no-one entered release date
-tag_info_full["date_string"] = tag_info_full["Release Date"].fillna(
-    tag_info_full["Date"].apply(
-        lambda x: "-".join([x.split("/")[0], calendar.month_abbr[int(x.split("/")[1])]])
-    )
-)
+tag_info_full["date_string"] = tag_info_full["Release Date"]
 tag_info_full["date_string"] = tag_info_full["date_string"].apply(lambda x: "2019-" + x)
 tag_info_full["time_string"] = tag_info_full["Release Time"].apply(lambda x: x + ":00")
 tag_info_full["combined_datetime"] = (
