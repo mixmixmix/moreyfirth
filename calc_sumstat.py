@@ -14,6 +14,7 @@ import seaborn as sns
 from matplotlib import cm
 import warnings
 import yaml
+import calendar
 
 # Suppress deprecation warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -29,13 +30,72 @@ newf = newf[newf["receiver"] != 483479]
 
 
 first_ping = newf.drop_duplicates(subset="tagid")
-tag_info = pd.read_csv("indata/mf/moray_tag_info.csv")
+tag_info = pd.read_csv("indata/mf/moray_tag_info_corrected.csv")
 
 # merge newf to tag_info with tagid and Tag_ID
 tag_info_full = pd.merge(
     first_ping, tag_info, left_on="tagid", right_on="Tag_ID", how="right"
 )
-missed_at_first_det = tag_info_full[tag_info_full["release_time"].isna()]
+
+tag_info_full = tag_info_full[tag_info_full["Spp"] == "Salmon"]
+###########################
+# get release datetime
+# Get rid of one idiotic format of date
+tag_info_full["Date"] = tag_info_full["Date"].apply(
+    lambda x: (
+        x if x[-4:] == "2019" else x.split("/")[1] + "/" + x.split("/")[0] + "/2019"
+    )
+)
+# Fix data where no-one entered release date
+tag_info_full["date_string"] = tag_info_full["Release Date"].fillna(
+    tag_info_full["Date"].apply(
+        lambda x: "-".join([x.split("/")[0], calendar.month_abbr[int(x.split("/")[1])]])
+    )
+)
+tag_info_full["date_string"] = tag_info_full["date_string"].apply(lambda x: "2019-" + x)
+tag_info_full["time_string"] = tag_info_full["Release Time"].apply(lambda x: x + ":00")
+tag_info_full["combined_datetime"] = (
+    tag_info_full["date_string"] + " " + tag_info_full["time_string"]
+)
+
+datetime_format = "%Y-%d-%b %H:%M:%S"
+tag_info_full["release_datetime"] = pd.to_datetime(
+    tag_info_full["combined_datetime"], format=datetime_format, errors="coerce"
+)
+
+wtf = tag_info_full[tag_info_full["release_datetime"].isnull()]
+if len(wtf):
+    raise ValueError("Some release times are not in the correct format")
+
+start_times = dict()
+for array in newf["array"].unique():
+    try:
+        start_times[array] = tag_info_full[tag_info_full["array"] == array][
+            "release_datetime"
+        ].min()
+        print(f"Starting time for array {array} is {start_times[array]}")
+    except:
+        continue
+
+smolt_starts = dict()
+for array in newf["array"].unique():
+    try:
+        this_array_list = []
+        for smolt in tag_info_full["Tag_ID"][tag_info_full["array"] == array]:
+            start_delay = (
+                tag_info_full[tag_info_full["Tag_ID"] == smolt][
+                    "release_datetime"
+                ].values[0]
+                - start_times[array]
+            ).total_seconds() / 60
+            this_array_list.append(int(start_delay))
+        smolt_starts[array] = this_array_list
+        # How many unique values we have?
+        print(
+            f"Array {array} has {len(set(this_array_list))} unique start times for {len(this_array_list)} smolts"
+        )
+    except:
+        continue
 
 rivsys = []
 arrays = dict()
@@ -135,14 +195,15 @@ for array in rivsys:
         .first()
         .reset_index()[["receiver", "distance", "efficiency"]]
     )
-    # TODO/HACK Assuming we won't know the data at the start
-    detectors_dists = [
-        int(z - rec_info.iloc[0]["distance"]) for z in rec_info["distance"].values
-    ]
+    detectors_dists = [int(z) for z in rec_info["distance"].values]
     detectors_probs = [float(z / 100) for z in rec_info["efficiency"].values]
 
-    the_array["minutes_of_journey"] = the_array.groupby("tagid")["datetime"].transform(
-        lambda x: (x - x.min()).dt.total_seconds() / 60
+    # We are redefining minutes_of_journey as the time since the first smolt in the run has been released
+    # the_array["minutes_of_journey"] = the_array.groupby("tagid")["datetime"].transform(
+    #     lambda x: (x - x.min()).dt.total_seconds() / 60
+    # )
+    the_array["minutes_of_journey"] = the_array.apply(
+        lambda x: (x["datetime"] - start_times[array]).total_seconds() / 60, axis=1
     )
     detlocs = the_array["distance"].unique()
 
@@ -253,6 +314,7 @@ for array in rivsys:
             "detectors_dists": detectors_dists,
             "detectors_probs": detectors_probs,
             "DET_GROUPS": DET_GROUPS.tolist(),
+            "smolt_starts": smolt_starts[array],
         }
         with open(f"out/river_data_{array.lower()}.yaml", "w") as file:
             yaml.dump(river_data, file)
