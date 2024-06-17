@@ -189,10 +189,28 @@ for array in rivsys:
     detectors_probs = [float(z / 100) for z in rec_info["efficiency"].values]
 
     # We are redefining minutes_of_journey as the time since the first smolt in the run has been released
-    # the_array["minutes_of_journey"] = the_array.groupby("tagid")["datetime"].transform(
-    #     lambda x: (x - x.min()).dt.total_seconds() / 60
-    # )
-    the_array["minutes_of_journey"] = the_array.apply(
+    the_array["minutes_of_journey"] = the_array.groupby("tagid")["datetime"].transform(
+        lambda x: (x - x.min()).dt.total_seconds() / 60
+    )
+    # For each 'tagid' get max 'minutes_of_journey'
+    tag_minutes = the_array.groupby("tagid")["minutes_of_journey"].max()
+
+    # calculate 75 percentile of the minutes_of_journey
+    thresh = tag_minutes.quantile(0.9)
+    thresh_days = thresh / (24 * 60)
+    # Plot histogram of minutes_of_journey with thresh line
+    plt.hist(tag_minutes, bins=50)
+    plt.axvline(thresh, color="r")
+    plt.title(f"90% of smolts have journey time less than {thresh_days:.1f} days")
+    plt.savefig(f"out/{array.lower()}_journey_time.png")
+    plt.close()
+
+    # NOTE
+    # CONTROVERSIAL:
+    # Removing all detections from time beyond threshold
+    the_array = the_array[the_array["minutes_of_journey"] < thresh]
+
+    the_array["minutes_of_the_run"] = the_array.apply(
         lambda x: (x["datetime"] - start_times[array]).total_seconds() / 60, axis=1
     )
     simtime_max_individual = (
@@ -205,13 +223,13 @@ for array in rivsys:
 
     # For each 'tagid' get, time of first, last and number of detections at each receiver
     first_det = np.array(
-        the_array.groupby(["tagid", "receiver"])["minutes_of_journey"].min().unstack()
+        the_array.groupby(["tagid", "receiver"])["minutes_of_the_run"].min().unstack()
     )
     last_det = np.array(
-        the_array.groupby(["tagid", "receiver"])["minutes_of_journey"].max().unstack()
+        the_array.groupby(["tagid", "receiver"])["minutes_of_the_run"].max().unstack()
     )
     cumu_det = np.array(
-        the_array.groupby(["tagid", "receiver"])["minutes_of_journey"]
+        the_array.groupby(["tagid", "receiver"])["minutes_of_the_run"]
         .count()
         .unstack()
         .fillna(0)
@@ -320,7 +338,7 @@ for array in rivsys:
             "name": str(array.lower()),
             "no_smolts": int(no_smolts),
             "NO_RECEIVERS": int(NO_RECEIVERS),
-            "simtime_max": int(the_array["minutes_of_journey"].max()),
+            "simtime_max": int(the_array["minutes_of_the_run"].max()),
             "simtime_max_individual": int(simtime_max_individual),
             "detectors_dists": detectors_dists,
             "detectors_probs": detectors_probs,
