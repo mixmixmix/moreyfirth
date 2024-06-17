@@ -195,6 +195,12 @@ for array in rivsys:
     the_array["minutes_of_journey"] = the_array.apply(
         lambda x: (x["datetime"] - start_times[array]).total_seconds() / 60, axis=1
     )
+    simtime_max_individual = (
+        the_array.groupby("tagid")["datetime"]
+        .transform(lambda x: (x - x.min()).dt.total_seconds() / 60)
+        .max()
+    )
+
     detlocs = the_array["distance"].unique()
 
     # For each 'tagid' get, time of first, last and number of detections at each receiver
@@ -298,6 +304,7 @@ for array in rivsys:
             "no_smolts": int(no_smolts),
             "NO_RECEIVERS": int(NO_RECEIVERS),
             "simtime_max": int(the_array["minutes_of_journey"].max()),
+            "simtime_max_individual": int(simtime_max_individual),
             "detectors_dists": detectors_dists,
             "detectors_probs": detectors_probs,
             "DET_GROUPS": DET_GROUPS.tolist(),
