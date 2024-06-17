@@ -21,6 +21,22 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 newf = pd.read_csv("indata/mf/Salmon.csv")
 
+# Adjustements for river Ness, merging of receivers at the same location and one receiver West-bound
+# replace receiver 483495 and 483466 with 483488
+newf["receiver"] = newf["receiver"].replace([483495, 483466], 483488)
+newf["receiver"] = newf["receiver"].replace([483463], 483460)
+newf["receiver"] = newf["receiver"].replace([483457], 483492)
+
+
+first_ping = newf.drop_duplicates(subset="tagid")
+tag_info = pd.read_csv("indata/mf/moray_tag_info.csv")
+
+# merge newf to tag_info with tagid and Tag_ID
+tag_info_full = pd.merge(
+    first_ping, tag_info, left_on="tagid", right_on="Tag_ID", how="right"
+)
+missed_at_first_det = tag_info_full[tag_info_full["release_time"].isna()]
+
 rivsys = []
 arrays = dict()
 for array in newf["array"].unique():
