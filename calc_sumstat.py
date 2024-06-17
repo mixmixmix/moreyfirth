@@ -217,11 +217,28 @@ for array in rivsys:
         .fillna(0)
     )
 
+    number_of_missing = len(
+        tag_info_full[
+            (tag_info_full["River"] == array) & (tag_info_full["array"].isnull())
+        ]
+    )
+    # Add number_of_missing rows of zeros to cumu_det
+    cumu_det = np.concatenate(
+        [cumu_det, np.zeros((number_of_missing, cumu_det.shape[1]))]
+    )
+    # Add number_of_missing rows of np.nan to first_det and last_det
+    first_det = np.concatenate(
+        [first_det, np.full((number_of_missing, first_det.shape[1]), np.nan)]
+    )
+    last_det = np.concatenate(
+        [last_det, np.full((number_of_missing, last_det.shape[1]), np.nan)]
+    )
+
     NO_RECEIVERS = the_array["receiver"].nunique()
     if NO_RECEIVERS < 3:
         print(f"Skipping array {array} as it has less than 3 receivers")
     else:
-        no_smolts = the_array["tagid"].nunique()
+        no_smolts = the_array["tagid"].nunique() + number_of_missing
 
         # divide receivers into three groups, writing the group number into the array
         DET_GROUPS = np.concatenate(
