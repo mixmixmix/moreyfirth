@@ -84,6 +84,7 @@ for array in newf["array"].unique():
     # merge on receiver
     pings_data = pd.merge(pings_data0, rec_table, on="receiver")
 
+    # NOTE for some reason my efficency is often lower than that from the tables. It is strange since, without potential marine data, if anything mine should be higher.
     for rec in pings_data["receiver"].unique():
         # get number of unique smolts detected by this receiver
         tr_smolts = set(pings_data[pings_data["receiver"] == rec]["tagid"].unique())
@@ -93,15 +94,14 @@ for array in newf["array"].unique():
             pings_data[pings_data["distance"] > tr_dist]["tagid"].unique()
         )
         tr_missed = further_smolts - tr_smolts
+        # tr_unique = tr_smolts - further_smolts # if I include this in denominator it'll make it lower still
         if len(further_smolts) > 0:
-            tr_efficency = 1 - (len(tr_missed) / len(further_smolts))
+            tr_efficency = 100 * (1 - (len(tr_missed) / len(further_smolts)))
         else:  # IF unknown from our computations use the receiver efficiency
             tr_efficency = pings_data[pings_data["receiver"] == rec][
                 "efficiency"
             ].values[0]
-        pings_data.loc[pings_data["receiver"] == rec, "mk_efficiency"] = (
-            100 * tr_efficency
-        )
+        pings_data.loc[pings_data["receiver"] == rec, "mk_efficiency"] = tr_efficency
 
     # How many NaNs we have in distance records as a percentage of all?
     print(
