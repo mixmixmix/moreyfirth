@@ -183,10 +183,11 @@ for array in rivsys:
     rec_info = (
         the_array.groupby(["receiver"])
         .first()
-        .reset_index()[["receiver", "distance", "efficiency"]]
+        .reset_index()[["receiver", "distance", "mk_efficiency"]]
     )
     detectors_dists = [int(z) for z in rec_info["distance"].values]
-    detectors_probs = [float(z / 100) for z in rec_info["efficiency"].values]
+    detectors_probs = [float(z / 100) for z in rec_info["mk_efficiency"].values]
+    # print(f"Detectors probabilities are : {detectors_probs}")
 
     # We are redefining minutes_of_journey as the time since the first smolt in the run has been released
     the_array["minutes_of_journey"] = the_array.groupby("tagid")["datetime"].transform(
