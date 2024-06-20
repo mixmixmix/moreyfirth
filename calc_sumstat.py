@@ -31,11 +31,9 @@ newf = newf[newf["receiver"] != 483479]
 
 first_ping = newf.drop_duplicates(subset="tagid")
 tag_info = pd.read_csv("indata/mf/moray_tag_info_corrected.csv")
-
+tag_info.rename(columns={"Tag_ID": "tagid"}, inplace=True)
 # merge newf to tag_info with tagid and Tag_ID
-tag_info_full = pd.merge(
-    first_ping, tag_info, left_on="tagid", right_on="Tag_ID", how="right"
-)
+tag_info_full = pd.merge(first_ping, tag_info, on="tagid", how="right")
 
 tag_info_full = tag_info_full[tag_info_full["Spp"] == "Salmon"]
 ###########################
@@ -65,15 +63,16 @@ for array in newf["array"].unique():
         ].min()
         print(f"Starting time for array {array} is {start_times[array]}")
     except:
+        print(f"Skipping {array}")
         continue
 
 smolt_starts = dict()
 for array in newf["array"].unique():
     try:
         this_array_list = []
-        for smolt in tag_info_full["Tag_ID"][tag_info_full["array"] == array]:
+        for smolt in tag_info_full["tagid"][tag_info_full["River"] == array]:
             start_delay = (
-                tag_info_full[tag_info_full["Tag_ID"] == smolt][
+                tag_info_full[tag_info_full["tagid"] == smolt][
                     "release_datetime"
                 ].values[0]
                 - start_times[array]
@@ -85,6 +84,7 @@ for array in newf["array"].unique():
             f"Array {array} has {len(set(this_array_list))} unique start times for {len(this_array_list)} smolts"
         )
     except:
+        print(f"Skipping {array} for starttimes")
         continue
 
 rivsys = []
