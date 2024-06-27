@@ -294,7 +294,7 @@ for array in rivsys:
         co_occurrences_corrected = co_occurrences / (2 * no_smolts * NO_RECEIVERS)
 
         # Additional calculations are modified to remove batch processing
-        npin = np.ma.masked_equal(cumu_det, 0).mean(axis=0).data
+        npin = np.ma.median(np.ma.masked_equal(cumu_det, 0), axis=0).filled(np.nan)
         mid_time = ((last_det - first_det) / 2) + first_det
 
         nufi = np.count_nonzero(cumu_det, axis=0) / no_smolts
