@@ -28,10 +28,19 @@ newf["receiver"] = newf["receiver"].replace([483463], 483460)
 newf["receiver"] = newf["receiver"].replace([483457], 483492)
 newf = newf[newf["receiver"] != 483479]
 
+# Remove observations of smolts that apparently have not been tagged... {12548, 12705} in Spey and 12923 for Findhorn
+newf = newf[newf["tagid"].isin([12548, 12705, 12923]) == False]
 
 first_ping = newf.drop_duplicates(subset="tagid")
 tag_info = pd.read_csv("indata/mf/moray_tag_info_corrected.csv")
 tag_info.rename(columns={"Tag_ID": "tagid"}, inplace=True)
+
+print(f"Mind the repeated tagids!")
+print(
+    f"I manually changed tagid of the 12594 in spey that never gets picked up to 9912594 and trout 12933 in deveron to 9912933"
+)
+print(tag_info[tag_info["tagid"].duplicated()]["tagid"])
+
 # merge newf to tag_info with tagid and Tag_ID
 tag_info_full = pd.merge(first_ping, tag_info, on="tagid", how="right")
 
@@ -333,6 +342,10 @@ for array in rivsys:
         )
         # save sumstat to csv in out folder
         np.savetxt(f"out/sumstat_{array.lower()}.csv", sumstat, delimiter=",")
+        if no_smolts != len(smolt_starts[array]):
+            raise ValueError(
+                f"Number of smolts in the array {array} does not match the number of start times"
+            )
         # save details about this river system for simulations
         # keep dtypes simple
         river_data = {
