@@ -303,7 +303,10 @@ for array in rivsys:
         co_occurrences_corrected = co_occurrences / (2 * no_smolts * NO_RECEIVERS)
 
         # Additional calculations are modified to remove batch processing
-        npin = np.ma.median(np.ma.masked_equal(cumu_det, 0), axis=0).filled(np.nan)
+        # axis = 0 instead of axis = 1
+        # median number of pings per fish that pinged at least once
+        npin_medi = np.ma.median(np.ma.masked_equal(cumu_det, 0), axis=0).filled(np.nan)
+        npin_mean = np.ma.mean(np.ma.masked_equal(cumu_det, 0), axis=0).filled(np.nan)
         mid_time = ((last_det - first_det) / 2) + first_det
 
         nufi = np.count_nonzero(cumu_det, axis=0) / no_smolts
@@ -311,31 +314,50 @@ for array in rivsys:
         arrtimemean = np.nanmean(mid_time, axis=0)
         arrtimedian = np.nanmedian(mid_time, axis=0)
 
-        meanspeed = np.nanmean(np.array(detlocs[1:]) / arrtimemean[1:])
-        medianspeed = np.nanmean(np.array(detlocs[1:]) / arrtimedian[1:])
+        arrtimestderr = np.nanstd(mid_time, axis=0) / np.sqrt(
+            np.count_nonzero(mid_time, axis=0)
+        )
 
-        group_npin = np.zeros(3)
+        arrtimeCV = np.divide(arrtimestderr, arrtimemean) * 1000
+
+        meanspeed = (
+            np.nanmean(np.array(detlocs[1:]) / arrtimemean[1:]) / 30
+        )  # top of our prior
+        medianspeed = (
+            np.nanmean(np.array(detlocs[1:]) / arrtimedian[1:]) / 30
+        )  # top of our prior
+
+        group_npin_mean = np.zeros(3)
+        group_npin_medi = np.zeros(3)
         group_nufi = np.zeros(3)
         group_arrtimestd = np.zeros(3)
+        group_arrtimestderr = np.zeros(3)
+        group_arrtimeCV = np.zeros(3)
 
         for zzz in range(3):
             indices = np.where(np.array(DET_GROUPS) == zzz)
             group_start = indices[0][0]
             group_end = indices[0][-1]
-            this_group_npin = npin[group_start : group_end + 1]
+            this_group_npin_medi = npin_medi[group_start : group_end + 1]
+            this_group_npin_mean = npin_mean[group_start : group_end + 1]
             this_group_nufi = nufi[group_start : group_end + 1]
             this_group_arrtimestd = arrtimestd[group_start : group_end + 1]
-            group_npin[zzz] = np.mean(this_group_npin)
+            this_group_arrtimestderr = arrtimestderr[group_start : group_end + 1]
+            this_group_arrtimeCV = arrtimeCV[group_start : group_end + 1]
+            group_npin_mean[zzz] = np.mean(this_group_npin_mean)
+            group_npin_medi[zzz] = np.mean(this_group_npin_medi)
             group_nufi[zzz] = np.mean(this_group_nufi)
-            group_arrtimestd[zzz] = np.mean(this_group_arrtimestd)
+            group_arrtimestderr[zzz] = np.mean(this_group_arrtimestderr)
+            group_arrtimeCV[zzz] = np.mean(this_group_arrtimeCV)
 
         # Prepare the summary statistics
         # NOTE WITHOUT std deviation of arrival time!!!!
         sumstat = np.concatenate(
             [
-                group_npin,
+                group_npin_medi,
                 group_nufi,
-                np.array([meanspeed]),
+                group_arrtimeCV,
+                # np.array([meanspeed]),
                 np.array([medianspeed]),
                 np.array([co_occurrences_corrected]),
             ]
