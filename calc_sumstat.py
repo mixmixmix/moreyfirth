@@ -315,7 +315,7 @@ for array in rivsys:
         arrtimedian = np.nanmedian(mid_time, axis=0)
 
         arrtimestderr = np.nanstd(mid_time, axis=0) / np.sqrt(
-            np.count_nonzero(mid_time, axis=0)
+            np.count_nonzero(cumu_det, axis=0)
         )
 
         arrtimeCV = np.divide(arrtimestderr, arrtimemean) * 1000
