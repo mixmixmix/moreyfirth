@@ -205,13 +205,13 @@ for array in rivsys:
     # For each 'tagid' get max 'minutes_of_journey'
     tag_minutes = the_array.groupby("tagid")["minutes_of_journey"].max()
 
-    # calculate 75 percentile of the minutes_of_journey
-    thresh = tag_minutes.quantile(0.9)
+    # calculate 95 percentile of the minutes_of_journey
+    thresh = tag_minutes.quantile(0.95)
     thresh_days = thresh / (24 * 60)
     # Plot histogram of minutes_of_journey with thresh line
     plt.hist(tag_minutes, bins=50)
     plt.axvline(thresh, color="r")
-    plt.title(f"90% of smolts have journey time less than {thresh_days:.1f} days")
+    plt.title(f"95% of smolts have journey time less than {thresh_days:.1f} days")
     plt.savefig(f"out/{array.lower()}_journey_time.png")
     plt.close()
 
@@ -355,11 +355,14 @@ for array in rivsys:
         sumstat = np.concatenate(
             [
                 group_npin_medi,
-                group_nufi,
-                group_arrtimeCV,
+                np.log(group_nufi / 1 - group_nufi),
+                np.log1p(group_arrtimeCV),
                 # np.array([meanspeed]),
-                np.array([medianspeed]),
-                np.array([co_occurrences_corrected]),
+                np.log(np.array([medianspeed]) / (1 - np.array([medianspeed]))),
+                np.log(
+                    np.array([co_occurrences_corrected])
+                    / (1 - np.array([co_occurrences_corrected]))
+                ),
             ]
         )
         # save sumstat to csv in out folder
