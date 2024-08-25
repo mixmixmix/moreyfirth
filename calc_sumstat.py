@@ -300,7 +300,8 @@ for array in rivsys:
         co_occurrences = np.sum(overlaps)  # Sum over smolts and receivers
 
         # We only want to count each pair once, so we subtract the count of smolts themselves and divide by 2
-        co_occurrences_corrected = co_occurrences / (2 * no_smolts * NO_RECEIVERS)
+        total_pairs = (no_smolts * (no_smolts - 1)) / 2
+        co_occurrences_corrected = co_occurrences / (total_pairs * NO_RECEIVERS)
 
         # Additional calculations are modified to remove batch processing
         # axis = 0 instead of axis = 1
@@ -352,6 +353,7 @@ for array in rivsys:
 
         # Prepare the summary statistics
         # NOTE WITHOUT std deviation of arrival time!!!!
+        print(np.array([co_occurrences_corrected]))
         sumstat = np.concatenate(
             [
                 group_npin_medi,
