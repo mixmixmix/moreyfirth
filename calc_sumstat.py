@@ -355,7 +355,7 @@ for array in rivsys:
         sumstat = np.concatenate(
             [
                 group_npin_medi,
-                np.log(group_nufi / 1 - group_nufi),
+                np.log(group_nufi / (1 - group_nufi)),
                 np.log1p(group_arrtimeCV),
                 # np.array([meanspeed]),
                 np.log(np.array([medianspeed]) / (1 - np.array([medianspeed]))),
